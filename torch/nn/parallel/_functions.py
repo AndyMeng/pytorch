@@ -14,6 +14,7 @@ class Broadcast(Function):
         if len(inputs) == 0:
             return tuple()
         self.input_device = inputs[0].get_device()
+        self.num_inputs = len(inputs)
         outputs = comm.broadcast_coalesced(inputs, self.target_gpus)
         return tuple([t for tensors in outputs for t in tensors])
 

@@ -198,7 +198,7 @@ auto ConvBackward::apply(const variable_list& grad_outputs) -> variable_list {
   std::unique_ptr<Tensor> grad_weight;
   std::unique_ptr<Tensor> grad_bias;
 
-  if (needs_input_grad(0)) {
+  if (should_compute_output(0)) {
     if (use_cudnn) {
 #ifdef WITH_CUDNN
       grad_input = input->newTensor();
@@ -235,7 +235,7 @@ auto ConvBackward::apply(const variable_list& grad_outputs) -> variable_list {
     }
   }
 
-  if (needs_input_grad(1) || needs_input_grad(2)) {
+  if (should_compute_output(1) || should_compute_output(2)) {
     if (use_cudnn) {
 #ifdef WITH_CUDNN
       grad_weight = weight->newTensor();
@@ -245,7 +245,7 @@ auto ConvBackward::apply(const variable_list& grad_outputs) -> variable_list {
           (THVoidTensor*)grad_output->cdata(), (THVoidTensor*)input->cdata(), (THVoidTensor*)grad_weight->cdata(),
           convolution.get(), benchmark);
 
-      if (bias && needs_input_grad(2)) {
+      if (bias && should_compute_output(2)) {
         grad_bias = bias->newTensor();
         grad_bias->resizeAs(*bias);
         cudnn_convolution_backward_bias(
@@ -417,7 +417,7 @@ static tensor_pair compute_grad_params(
   grad_weight->resizeAs(*weight).zero();
 
   std::unique_ptr<Tensor> grad_bias;
-  if (bias && params.needs_input_grad(2)) {
+  if (bias && params.should_compute_output(2)) {
     grad_bias = bias->newTensor();
     grad_bias->resizeAs(*bias).zero();
   }

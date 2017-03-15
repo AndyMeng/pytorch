@@ -95,13 +95,13 @@ auto BatchNormBackward::apply(const variable_list& grad_outputs) -> variable_lis
 #endif
 
   std::unique_ptr<Tensor> grad_input;
-  if (needs_input_grad(0) || use_cudnn) {
+  if (should_compute_output(0) || use_cudnn) {
     grad_input = input->newTensor();
     grad_input->resizeAs(*input);
   }
 
   std::unique_ptr<Tensor> grad_weight;
-  if (needs_input_grad(1) || use_cudnn) {
+  if (should_compute_output(1) || use_cudnn) {
     grad_weight = weight->newTensor();
     grad_weight->resizeAs(*weight);
     if (!use_cudnn) {
@@ -110,7 +110,7 @@ auto BatchNormBackward::apply(const variable_list& grad_outputs) -> variable_lis
   }
 
   std::unique_ptr<Tensor> grad_bias;
-  if (needs_input_grad(2) || use_cudnn) {
+  if (should_compute_output(2) || use_cudnn) {
     grad_bias = bias->newTensor();
     grad_bias->resizeAs(*bias);
     if (!use_cudnn) {
